@@ -23,6 +23,11 @@ class LyricsModelBuilder {
   static LyricsModelBuilder create() => LyricsModelBuilder._();
 
   LyricsModelBuilder bindLyricToMain(String lyric, [LyricsParse? parser]) {
+    final RegExp exp2 = RegExp(r"(\[\d+:\d+)\]");
+    final hasMatch2 = exp2.hasMatch(lyric);
+    if (hasMatch2) {
+      lyric = lyric.replaceAllMapped(exp2, ((m) => '${m[1]}.000]'));
+    }
     mainLines = (parser ?? ParserSmart(lyric)).parseLines();
     return this;
   }
