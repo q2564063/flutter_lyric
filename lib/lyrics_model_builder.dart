@@ -1,3 +1,11 @@
+/*
+ * @Author: zzq 
+ * @Date: 2024-01-05 11:16:09
+ * @LastEditors: zzq 
+ * @LastEditTime: 2024-01-08 16:13:24
+ * @FilePath: /light_player/Users/bmi/Documents/flutter_lyric/lib/lyrics_model_builder.dart
+ * @Description: 
+ */
 import 'package:flutter_lyric/lyric_parser/lyrics_parse.dart';
 import 'package:flutter_lyric/lyrics_reader.dart';
 
@@ -26,7 +34,7 @@ class LyricsModelBuilder {
     final RegExp exp2 = RegExp(r"(\[\d+:\d+)\]");
     final hasMatch2 = exp2.hasMatch(lyric);
     if (hasMatch2) {
-      lyric = lyric.replaceAllMapped(exp2, ((m) => '${m[1]}.000]'));
+      lyric = lyric.replaceAllMapped(exp2, ((m) => '${m[1]}.00]'));
     }
     mainLines = (parser ?? ParserSmart(lyric)).parseLines();
     return this;
