@@ -28,6 +28,7 @@ class LyricsReader extends StatefulWidget {
   final int position;
   final EdgeInsets? padding;
   final VoidCallback? onTap;
+  final VoidCallback? onDoubleTap;
   final SelectLineBuilder? selectLineBuilder;
   final EmptyBuilder? emptyBuilder;
 
@@ -42,6 +43,7 @@ class LyricsReader extends StatefulWidget {
     this.selectLineBuilder,
     LyricUI? lyricUi,
     this.onTap,
+    this.onDoubleTap,
     this.playing,
     this.emptyBuilder,
   }) : ui = lyricUi ?? UINetease();
@@ -347,6 +349,8 @@ class LyricReaderState extends State<LyricsReader>
     );
   }
 
+  Timer? dragTimer;
+
   ///support touch event
   Widget buildTouchReader(child) {
     return GestureDetector(
@@ -358,22 +362,34 @@ class LyricReaderState extends State<LyricsReader>
         isDrag = true;
       },
       onTapUp: (event) {
-        isDrag = false;
+        // isDrag = false;
         resumeSelectLineOffset();
       },
+      onDoubleTap: () {
+        isDrag = false;
+        resumeSelectLineOffset();
+        widget.onDoubleTap?.call();
+      },
       onVerticalDragStart: (event) {
+        isDrag = true;
         disposeFiling();
         disposeSelectLineDelay();
         setSelectLine(true);
       },
-      onVerticalDragUpdate: (event) =>
-          {lyricPaint.lyricOffset += event.primaryDelta ?? 0},
+      onVerticalDragUpdate: (event) {
+        lyricPaint.lyricOffset += event.primaryDelta ?? 0;
+        dragTimer?.cancel();
+        dragTimer = Timer(const Duration(milliseconds: 3000), () {
+          isDrag = false;
+          dragTimer?.cancel();
+        });
+      },
       child: child,
     );
   }
 
   handleDragEnd(DragEndDetails event) {
-    isDrag = false;
+    // isDrag = false;
     _flingController = AnimationController.unbounded(vsync: this)
       ..addListener(() {
         if (_flingController == null) return;
@@ -405,9 +421,9 @@ class LyricReaderState extends State<LyricsReader>
     isWait = true;
     var waitSecond = 0;
     waitTimer?.cancel();
-    waitTimer = new Timer.periodic(Duration(milliseconds: 100), (timer) {
+    waitTimer = Timer.periodic(Duration(milliseconds: 100), (timer) {
       waitSecond += 100;
-      if (waitSecond == 400) {
+      if (waitSecond == 600) {
         realUpdateOffset(widget.model?.computeScroll(
                 lyricPaint.centerLyricIndex,
                 lyricPaint.playingIndex,
