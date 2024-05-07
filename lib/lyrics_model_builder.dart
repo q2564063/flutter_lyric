@@ -31,7 +31,8 @@ class LyricsModelBuilder {
   static LyricsModelBuilder create() => LyricsModelBuilder._();
 
   LyricsModelBuilder bindLyricToMain(String lyric, [LyricsParse? parser]) {
-    final RegExp exp2 = RegExp(r"(\[\d+:\d+)\]");
+    final RegExp exp2 =
+        RegExp(r"(\[\d+:\d+)(\.0)?\]"); //存在歌词时间戳为：[00:00] 和 [00:00.0]的情况
     final hasMatch2 = exp2.hasMatch(lyric);
     if (hasMatch2) {
       lyric = lyric.replaceAllMapped(exp2, ((m) => '${m[1]}.00]'));

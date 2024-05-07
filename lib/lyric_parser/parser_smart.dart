@@ -9,7 +9,7 @@ class ParserSmart extends LyricsParse {
   ParserSmart(String lyric) : super(lyric);
 
   @override
-  List<LyricsLineModel> parseLines({bool isMain: true}) {
+  List<LyricsLineModel> parseLines({bool isMain = true}) {
     var qrc = ParserQrc(lyric);
     if (qrc.isOK()) {
       return qrc.parseLines(isMain: isMain);
