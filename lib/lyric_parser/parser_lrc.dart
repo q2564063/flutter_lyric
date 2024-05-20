@@ -13,7 +13,7 @@ class ParserLrc extends LyricsParse {
   ParserLrc(String lyric) : super(lyric);
 
   @override
-  List<LyricsLineModel> parseLines({bool isMain: true}) {
+  List<LyricsLineModel> parseLines({bool isMain = true, int offset = 0}) {
     //读每一行
     var lines = lyric.split("\n");
     if (lines.isEmpty) {
@@ -34,6 +34,9 @@ class ParserLrc extends LyricsParse {
       var realLyrics = line.replaceFirst(pattern, "");
       //转时间戳
       var ts = timeTagToTS(time);
+      if (ts != null) {
+        ts = (ts + offset) < 0 ? 0 : (ts + offset);
+      }
       LyricsLog.logD("匹配time:$time($ts) 真实歌词：$realLyrics");
       var lineModel = LyricsLineModel()..startTime = ts;
       if (realLyrics == "//") {

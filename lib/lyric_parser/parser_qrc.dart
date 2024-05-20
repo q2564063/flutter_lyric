@@ -12,7 +12,7 @@ class ParserQrc extends LyricsParse {
   ParserQrc(String lyric) : super(lyric);
 
   @override
-  List<LyricsLineModel> parseLines({bool isMain: true}) {
+  List<LyricsLineModel> parseLines({bool isMain = true, int offset = 0}) {
     lyric =
         RegExp(r"""LyricContent="([\s\S]*)">""").firstMatch(lyric)?.group(1) ??
             lyric;

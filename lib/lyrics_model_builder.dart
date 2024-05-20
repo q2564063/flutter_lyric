@@ -28,21 +28,41 @@ class LyricsModelBuilder {
   List<LyricsLineModel>? mainLines;
   List<LyricsLineModel>? extLines;
 
+  int offset = 0;
+
   static LyricsModelBuilder create() => LyricsModelBuilder._();
 
   LyricsModelBuilder bindLyricToMain(String lyric, [LyricsParse? parser]) {
-    final RegExp exp2 =
+    final RegExp exp1 =
         RegExp(r"(\[\d+:\d+)(\.0)?\]"); //存在歌词时间戳为：[00:00] 和 [00:00.0]的情况
-    final hasMatch2 = exp2.hasMatch(lyric);
-    if (hasMatch2) {
-      lyric = lyric.replaceAllMapped(exp2, ((m) => '${m[1]}.00]'));
+    if (exp1.hasMatch(lyric)) {
+      lyric = lyric.replaceAllMapped(exp1, ((m) => '${m[1]}.00]'));
     }
-    mainLines = (parser ?? ParserSmart(lyric)).parseLines();
+    final RegExp exp2 = RegExp(r"(\[\d+:\d+(\.\d+)?\])(\[\d+:\d+(\.\d+)?\])");
+    if (exp2.hasMatch(lyric)) {
+      lyric = lyric.replaceAllMapped(exp2, ((m) {
+        return '${m[1]}\n${m[3]}';
+      }));
+    }
+    offset = getLyricsTimelineOffset(lyric);
+    mainLines = (parser ?? ParserSmart(lyric)).parseLines(offset: offset);
+
     return this;
   }
 
+  int getLyricsTimelineOffset(String lyrics) {
+    // example: [offset:500]  // 500ms 负数：提前显示， 正数：延后显示
+    final regExp = RegExp(r"\[offset:(-?\d+)\]");
+    final match = regExp.firstMatch(lyrics);
+    if (match != null) {
+      return int.parse(match.group(1) ?? "0");
+    }
+    return 0;
+  }
+
   LyricsModelBuilder bindLyricToExt(String lyric, [LyricsParse? parser]) {
-    extLines = (parser ?? ParserSmart(lyric)).parseLines(isMain: false);
+    extLines = (parser ?? ParserSmart(lyric))
+        .parseLines(isMain: false, offset: offset);
     return this;
   }
 
