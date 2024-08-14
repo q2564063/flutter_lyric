@@ -45,7 +45,39 @@ class LyricsModelBuilder {
       }));
     }
     offset = getLyricsTimelineOffset(lyric);
-    mainLines = (parser ?? ParserSmart(lyric)).parseLines(offset: offset);
+
+    Map<String,String> mainLyricsMap = <String,String>{};
+    Map<String,String> extLyricsMap = <String,String>{};
+
+    List<String> lyricsList = lyric.split('\n');
+    String lastTimeKey = '';
+    for (int i = 0; i < lyricsList.length; i++) {
+      String line = lyricsList[i];
+      final regExp = RegExp(r"^\[\d+:\d+(\.\d+)?\]");
+      final match = regExp.firstMatch(line);
+      if (match != null) {
+        String time = match.group(0)!;
+        lastTimeKey = time;
+        if (mainLyricsMap.containsKey(time)) {
+          if ( mainLyricsMap[time] != line){
+            extLyricsMap[time] = line;
+          }
+        }else{
+          mainLyricsMap[time] = line;
+          extLyricsMap[time] = '';
+        }
+      }else{
+        if (mainLyricsMap[lastTimeKey]?.trim() != line.trim()){
+          extLyricsMap[lastTimeKey] = '$lastTimeKey${line.trim()}';
+        }
+      }
+    }
+
+    final mainLyrics = mainLyricsMap.values.toList().join('\n');
+    final extLyrics = extLyricsMap.values.toList().join('\n');
+    mainLines = (parser ?? ParserSmart(mainLyrics)).parseLines(offset: offset);
+    extLines = (parser ?? ParserSmart(extLyrics)).parseLines(isMain: false, offset: offset);
+
 
     return this;
   }

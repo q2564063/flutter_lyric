@@ -31,7 +31,7 @@ class ParserLrc extends LyricsParse {
         return;
       }
       //移除time，拿到真实歌词
-      var realLyrics = line.replaceFirst(pattern, "");
+      var realLyrics = line.replaceFirst(pattern, "").replaceAll(pattern, "");
       //转时间戳
       var ts = timeTagToTS(time);
       if (ts != null) {
